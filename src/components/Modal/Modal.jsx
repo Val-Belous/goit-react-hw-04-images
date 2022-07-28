@@ -8,13 +8,13 @@ export class Modal extends Component {
     onClose: PropTypes.func.isRequired,
   };
   componentDidMount() {
-    window.addEventListener('keydown', this.onTap);
+    window.addEventListener('keydown', this.onClose);
   }
   componentWillUnmount() {
-    window.removeEventListener('keydown', this.onTap);
+    window.removeEventListener('keydown', this.onClose);
   }
 
-  onTap = evt => {
+  onClose = evt => {
     if (evt.code === 'Escape') {
       this.props.onClose();
     }
