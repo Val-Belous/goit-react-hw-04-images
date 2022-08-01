@@ -14,18 +14,6 @@ const STATUS = {
 };
 
 export const ImageGallery = ({ query, handlerOpenModal }) => {
-  // static propTypes = {
-  //   handlerOpenModal: PropTypes.func.isRequired,
-  //   query: PropTypes.string.isRequired,
-  // };
-
-  // state = {
-  //   gallery: [],
-  //   totalHits: null,
-  //   page: 1,
-  //   status: STATUS.idle,
-  // };
-
   const [gallery, setGallery] = useState([]);
   const [totalHits, setTotalHits] = useState(null);
   const [page, setPage] = useState(1);
@@ -33,14 +21,15 @@ export const ImageGallery = ({ query, handlerOpenModal }) => {
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    if (!query && page === 1) {
+    if (!query) {
       return;
     }
     setStatus(STATUS.loading);
-    createRequest(query, page)
+    createRequest(query)
       .then(res => {
         const { data } = res;
-        setGallery(prev => [...prev, ...data.hits]);
+        setPage(2);
+        setGallery([...data.hits]);
         setTotalHits(data.totalHits);
         setStatus(STATUS.success);
       })
@@ -49,38 +38,14 @@ export const ImageGallery = ({ query, handlerOpenModal }) => {
         setError(error.message);
         setStatus(STATUS.error);
       });
-  }, [query, page]);
-
-  // componentDidUpdate(prevProps) {
-  //   if (prevProps.query !== this.props.query) {
-  //     this.setState({ status: STATUS.loading });
-  //     createRequest(query)
-  //       .then(res => {
-  //         const { data } = res;
-  //         if (data.hits.length === 0) {
-  //           alert('You enter invalid search request');
-  //         }
-  //         this.setState(prevState => ({
-  //           gallery: [...data.hits],
-  //           page: 2,
-  //           totalHits: data.totalHits,
-  //           status: STATUS.success,
-  //         }));
-  //       })
-  //       .catch(error => {
-  //         this.setState({ status: STATUS.error, error });
-  //       });
-  //   }
-  // }
+  }, [query]);
 
   const loadMore = () => {
     createRequest(query, page)
       .then(res => {
         const { hits } = res.data;
-        setPage(prevState => ({
-          gallery: [...gallery, ...hits],
-          page: page + 1,
-        }));
+        setGallery(prev => [...prev, ...hits]);
+        setPage(prev => prev + 1);
       })
       .catch(error => {
         setError({ status: STATUS.error, error });
@@ -120,4 +85,9 @@ export const ImageGallery = ({ query, handlerOpenModal }) => {
       {totalHits >= 12 * page && <Button onClick={loadMore} />}
     </>
   );
+};
+
+ImageGallery.propTypes = {
+  handlerOpenModal: PropTypes.func.isRequired,
+  query: PropTypes.string.isRequired,
 };
